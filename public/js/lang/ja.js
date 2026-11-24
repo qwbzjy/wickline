@@ -420,6 +420,8 @@ export default {
   'draw.tool.channel': '平行チャネル',
   'draw.tool.text': 'テキスト',
   'draw.tool.fib': 'フィボナッチ・リトレースメント',
+  'draw.tool.fibtime': 'トレンドベースのフィボナッチ・タイム',
+  'draw.tool.fibchannel': 'フィボナッチ・チャネル',
   'draw.tool.measure': '計測',
   'draw.tool.long': 'ロングポジション',
   'draw.tool.short': 'ショートポジション',

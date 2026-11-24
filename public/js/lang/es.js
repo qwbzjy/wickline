@@ -420,6 +420,8 @@ export default {
   'draw.tool.channel': 'Canal paralelo',
   'draw.tool.text': 'Texto',
   'draw.tool.fib': 'Retroceso de Fibonacci',
+  'draw.tool.fibtime': 'Tiempo de Fibonacci basado en tendencia',
+  'draw.tool.fibchannel': 'Canal de Fibonacci',
   'draw.tool.measure': 'Medir',
   'draw.tool.long': 'Posición larga',
   'draw.tool.short': 'Posición corta',

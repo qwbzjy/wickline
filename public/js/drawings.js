@@ -9,6 +9,12 @@ const FIB_LEVELS = [
   [0, '#8E8A82'], [0.236, '#EC5246'], [0.382, '#FF9800'], [0.5, '#4CAF50'],
   [0.618, '#34B886'], [0.786, '#00BCD4'], [1, '#8E8A82'],
 ];
+const FIB_EXT_LEVELS = [[1.618, '#4FA3F7'], [2.618, '#EC5246'], [3.618, '#9C27B0'], [4.236, '#E040FB']];
+const FIB_CHANNEL_LEVELS = [...FIB_LEVELS, ...FIB_EXT_LEVELS];
+const FIB_TIME_LEVELS = [
+  [0, '#8E8A82'], [0.382, '#FF9800'], [0.5, '#4CAF50'], [0.618, '#34B886'], [1, '#8E8A82'],
+  [1.382, '#00BCD4'], [1.618, '#4FA3F7'], [2, '#8E8A82'], [2.618, '#EC5246'], [3.618, '#9C27B0'], [4.236, '#E040FB'],
+];
 
 export const TOOLS = {
   cursor: { label: t('draw.tool.cursor'), points: 0 },
@@ -23,6 +29,8 @@ export const TOOLS = {
   channel: { label: t('draw.tool.channel'), points: 3, color: '#4FA3F7' },
   text: { label: t('draw.tool.text'), points: 1, color: '#D9D5CD' },
   fib: { label: t('draw.tool.fib'), points: 2, color: '#8E8A82' },
+  fibtime: { label: t('draw.tool.fibtime'), points: 3, color: '#8E8A82' },
+  fibchannel: { label: t('draw.tool.fibchannel'), points: 3, color: '#8E8A82' },
   measure: { label: t('draw.tool.measure'), points: 2, color: '#4FA3F7' },
   long: { label: t('draw.tool.long'), points: 2, color: '#34B886' },
   short: { label: t('draw.tool.short'), points: 2, color: '#EC5246' },
@@ -218,6 +226,12 @@ export class DrawingLayer {
     return p1.price + ((p2.price - p1.price) * (l - l1)) / (l2 - l1);
   }
 
+  /** x of a trend-based Fib time level: p3 plus lvl times the p1→p2 span, counted in bars. */
+  _fibTimeX(d, lvl) {
+    const span = this.logicalFromTime(d.p2.time) - this.logicalFromTime(d.p1.time);
+    return this.chart.timeScale().logicalToCoordinate(this.logicalFromTime(d.p3.time) + Math.abs(span) * lvl);
+  }
+
   // --- creating drawings ----------------------------------------------------------
   /** Returns true when the click was used by the drawing layer. */
   handleClick(param) {
@@ -243,18 +257,19 @@ export class DrawingLayer {
     }
     if (!this.pending) {
       this.pending = { id: crypto.randomUUID(), type: this.tool, p1: p, p2: { ...p }, color: spec.color, step: 1 };
-      if (this.tool === 'channel') this.pending.p3 = { ...p };
+      if (spec.points === 3) this.pending.p3 = { ...p };
       this._request?.();
       return true;
     }
-    if (this.pending.type === 'channel' && this.pending.step === 1) {
+    const three = TOOLS[this.pending.type].points === 3;
+    if (three && this.pending.step === 1) {
       this.pending.p2 = p;
       this.pending.p3 = { ...p };
       this.pending.step = 2;
       this._request?.();
       return true;
     }
-    if (this.pending.type === 'channel') this.pending.p3 = p;
+    if (three) this.pending.p3 = p;
     else this.pending.p2 = p;
     const item = this.pending;
     delete item.step;
@@ -275,7 +290,7 @@ export class DrawingLayer {
     const pt = this._point(param.point.x, param.point.y);
     if (!pt) return;
     const p = { time: pt.time, price: pt.price };
-    if (this.pending.type === 'channel' && this.pending.step === 2) this.pending.p3 = p;
+    if (this.pending.step === 2) this.pending.p3 = p;
     else this.pending.p2 = p;
     this._request?.();
   }
@@ -291,7 +306,10 @@ export class DrawingLayer {
       case 'long': case 'short':
         pts.push(['p1', x1, y1], ['p2', this._x(d.p2.time), this._y(d.p2.price)], ['p3', x1, this._y(d.p3.price)]);
         break;
-      case 'channel': {
+      case 'fibtime':
+        pts.push(['p1', x1, y1], ['p2', this._x(d.p2.time), this._y(d.p2.price)], ['p3', this._x(d.p3.time), this._y(d.p3.price)]);
+        break;
+      case 'channel': case 'fibchannel': {
         const off = d.p3.price - this._linePriceAt(d.p1, d.p2, d.p3.time);
         pts.push(['p1', x1, y1], ['p2', this._x(d.p2.time), this._y(d.p2.price)],
           ['p3', (x1 + this._x(d.p2.time)) / 2, this._y((d.p1.price + d.p2.price) / 2 + off)]);
@@ -398,6 +416,27 @@ export class DrawingLayer {
         for (const [lvl] of FIB_LEVELS) {
           const ly = this._y(d.p2.price + (d.p1.price - d.p2.price) * lvl);
           if (ly != null) m = Math.min(m, Math.abs(y - ly));
+        }
+        return m;
+      }
+      case 'fibtime': {
+        if (x1 == null || x2 == null || y2 == null) return null;
+        let m = distToSegment(x, y, x1, y1, x2, y2);
+        const x3 = this._x(d.p3.time), y3 = this._y(d.p3.price);
+        if (x3 != null && y3 != null) m = Math.min(m, distToSegment(x, y, x2, y2, x3, y3));
+        for (const [lvl] of FIB_TIME_LEVELS) {
+          const lx = this._fibTimeX(d, lvl);
+          if (lx != null) m = Math.min(m, Math.abs(x - lx));
+        }
+        return m;
+      }
+      case 'fibchannel': {
+        if (x1 == null || x2 == null || y2 == null) return null;
+        const off = d.p3.price - this._linePriceAt(d.p1, d.p2, d.p3.time);
+        let m = Infinity;
+        for (const [lvl] of FIB_CHANNEL_LEVELS) {
+          const ya = this._y(d.p1.price + off * lvl), yb = this._y(d.p2.price + off * lvl);
+          if (ya != null && yb != null) m = Math.min(m, distToSegment(x, y, x1, ya, x2, yb));
         }
         return m;
       }
@@ -524,6 +563,55 @@ export class DrawingLayer {
         ctx.strokeStyle = '#8E8A82';
         line(x1, y1, x2, y2);
         ctx.setLineDash([]);
+        break;
+      }
+      case 'fibtime': {
+        ctx.setLineDash([4, 4]);
+        ctx.strokeStyle = '#8E8A82';
+        ctx.lineWidth = 1;
+        line(x1, y1, x2, y2);
+        const x3 = this._x(d.p3.time), y3 = this._y(d.p3.price);
+        if (d.step !== 1 && x3 != null && y3 != null) line(x2, y2, x3, y3);
+        ctx.setLineDash([]);
+        if (d.step === 1 || x3 == null) break;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'bottom';
+        let prevX = null;
+        for (const [lvl, color] of FIB_TIME_LEVELS) {
+          const x = this._fibTimeX(d, lvl);
+          if (x == null) continue;
+          if (prevX != null) {
+            ctx.fillStyle = rgba(color, 0.06);
+            ctx.fillRect(Math.min(prevX, x), 0, Math.abs(x - prevX), size.height);
+          }
+          ctx.strokeStyle = color;
+          line(x, 0, x, size.height);
+          ctx.fillStyle = color;
+          ctx.fillText(String(lvl), x + 4, size.height - 4);
+          prevX = x;
+        }
+        break;
+      }
+      case 'fibchannel': {
+        if (d.step === 1) { ctx.lineWidth = 1; line(x1, y1, x2, y2); break; }
+        const off = d.p3.price - this._linePriceAt(d.p1, d.p2, d.p3.time);
+        let prev = null;
+        for (const [lvl, color] of FIB_CHANNEL_LEVELS) {
+          const ya = this._y(d.p1.price + off * lvl), yb = this._y(d.p2.price + off * lvl);
+          if (ya == null || yb == null) continue;
+          if (prev) {
+            ctx.fillStyle = rgba(color, 0.1);
+            ctx.beginPath(); ctx.moveTo(x1, prev[0]); ctx.lineTo(x2, prev[1]); ctx.lineTo(x2, yb); ctx.lineTo(x1, ya); ctx.closePath(); ctx.fill();
+          }
+          ctx.strokeStyle = color;
+          ctx.lineWidth = 1;
+          line(x1, ya, x2, yb);
+          ctx.fillStyle = color;
+          ctx.textAlign = x1 <= x2 ? 'right' : 'left';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(String(lvl), x1 + (x1 <= x2 ? -6 : 6), ya);
+          prev = [ya, yb];
+        }
         break;
       }
       case 'measure': {

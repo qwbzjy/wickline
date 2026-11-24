@@ -420,6 +420,8 @@ export default {
   'draw.tool.channel': '平行通道',
   'draw.tool.text': '文本',
   'draw.tool.fib': '斐波那契回撤',
+  'draw.tool.fibtime': '斐波那契趋势时间',
+  'draw.tool.fibchannel': '斐波那契通道',
   'draw.tool.measure': '测量',
   'draw.tool.long': '多头仓位',
   'draw.tool.short': '空头仓位',

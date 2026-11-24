@@ -420,6 +420,8 @@ export default {
   'draw.tool.channel': '平行通道',
   'draw.tool.text': '文字',
   'draw.tool.fib': '費波那契回撤',
+  'draw.tool.fibtime': '費波那契趨勢時間',
+  'draw.tool.fibchannel': '費波那契通道',
   'draw.tool.measure': '測量',
   'draw.tool.long': '多頭部位',
   'draw.tool.short': '空頭部位',

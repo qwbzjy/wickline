@@ -420,6 +420,8 @@ export default {
   'draw.tool.channel': 'Canal paralelo',
   'draw.tool.text': 'Texto',
   'draw.tool.fib': 'Retração de Fibonacci',
+  'draw.tool.fibtime': 'Tempo de Fibonacci baseado em tendência',
+  'draw.tool.fibchannel': 'Canal de Fibonacci',
   'draw.tool.measure': 'Medir',
   'draw.tool.long': 'Posição comprada',
   'draw.tool.short': 'Posição vendida',

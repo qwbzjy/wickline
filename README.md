@@ -138,7 +138,7 @@ A free, open-source charting platform.
   - **Lines:** trend line, ray, extended line, arrow.
   - **Levels:** horizontal line, horizontal ray, vertical line.
   - **Shapes & text:** rectangle, parallel channel, text.
-  - **Analysis:** Fibonacci retracement, measure, long position, short position.
+  - **Analysis:** Fibonacci retracement, trend-based Fib time, Fib channel, measure, long position, short position.
 - **Editing:** drag drawings and their handles. Change colors from the drawing's toolbar.
 - **Price alerts:** crossing, crossing up or crossing down. You get a sound, an on-screen message and an optional desktop notification. Create them from a horizontal line with one click.
 

@@ -74,6 +74,8 @@ const TOOL_ICONS = {
   rect: svg(`<rect x="4.5" y="6.5" width="15" height="11" ${S}/>`),
   text: svg(`<path d="M6 6h12M12 6v13" ${S}/>`),
   fib: svg(`<path d="M3 5h18M3 9.5h18M3 13h18M3 19h18" ${S}/>`),
+  fibtime: svg(`<path d="M4 3v18M8 3v18M12 3v18M18 3v18" ${S}/>`),
+  fibchannel: svg(`<path d="M3 13L13 3M3 17L17 3M5 21L21 5" ${S}/>`),
   measure: svg(`<path d="M4 20L20 4M4 14v6h6M20 10V4h-6" ${S}/>`),
   long: svg(`<rect x="4" y="4" width="16" height="8" ${S}/><rect x="4" y="12" width="16" height="6" ${S} stroke-dasharray="2 2"/><path d="M12 9V6" ${S}/>`),
   short: svg(`<rect x="4" y="6" width="16" height="6" ${S} stroke-dasharray="2 2"/><rect x="4" y="12" width="16" height="8" ${S}/><path d="M12 15v3" ${S}/>`),
@@ -84,7 +86,7 @@ const TOOL_GROUPS = [
   { id: 'lines', tools: ['trend', 'ray', 'extended', 'arrow', 'channel'] },
   { id: 'levels', tools: ['hline', 'hray', 'vline'] },
   { id: 'shapes', tools: ['rect', 'text'] },
-  { id: 'fib', tools: ['fib', 'measure'] },
+  { id: 'fib', tools: ['fib', 'fibtime', 'fibchannel', 'measure'] },
   { id: 'positions', tools: ['long', 'short'] },
 ];
 

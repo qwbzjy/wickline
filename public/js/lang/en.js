@@ -422,6 +422,8 @@ export default {
   'draw.tool.channel': 'Parallel channel',
   'draw.tool.text': 'Text',
   'draw.tool.fib': 'Fib retracement',
+  'draw.tool.fibtime': 'Trend-based Fib time',
+  'draw.tool.fibchannel': 'Fib channel',
   'draw.tool.measure': 'Measure',
   'draw.tool.long': 'Long position',
   'draw.tool.short': 'Short position',

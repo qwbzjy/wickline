@@ -420,6 +420,8 @@ export default {
   'draw.tool.channel': '평행 채널',
   'draw.tool.text': '텍스트',
   'draw.tool.fib': '피보나치 되돌림',
+  'draw.tool.fibtime': '추세 기반 피보나치 시간',
+  'draw.tool.fibchannel': '피보나치 채널',
   'draw.tool.measure': '측정',
   'draw.tool.long': '롱 포지션',
   'draw.tool.short': '숏 포지션',
